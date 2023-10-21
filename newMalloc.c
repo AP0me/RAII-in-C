@@ -7,13 +7,14 @@ struct heapLLNode{
   void* heap;
   struct heapLLNode* next;
 };
-
 struct heapArr{
   struct heapLLNode* heapFirst;
   struct heapLLNode* heapLast;
   int size;
 };
-
+struct Args{
+  struct heapArr exampleHeap;
+};
 void freeAll(struct heapArr* heap){
   struct heapLLNode* temp = heap->heapFirst;
   struct heapLLNode* toBeFreed;
@@ -22,7 +23,6 @@ void freeAll(struct heapArr* heap){
     temp = temp->next;
   }
 }
-
 void* autoMalloc(struct heapArr* heap, int size){
   void* mem = malloc(size);
   struct heapLLNode* temp = malloc(sizeof(struct heapLLNode));
@@ -37,14 +37,20 @@ void* autoMalloc(struct heapArr* heap, int size){
   
   return mem;
 }
+void* run(struct Args argList, void *(*exampleFunction1)(struct Args)){
+  struct heapArr exampleHeap; exampleHeap.size = 0;
+  argList.exampleHeap = exampleHeap;
+  void *(*result)() = (void *)exampleFunction1(argList);
+  freeAll(&exampleHeap);
+  return result;
+}
 
-int exampleFunction(){
-  struct heapArr exampleHeap; exampleHeap.size = 10; exampleHeap.size = 0;
+int* exampleFunction(struct Args argList){
 
-  int* data1 = (int *)autoMalloc(&exampleHeap, sizeof(int));
-  int* data2 = (int *)autoMalloc(&exampleHeap, sizeof(int));
-  int* data3 = (int *)autoMalloc(&exampleHeap, sizeof(int));
-  int* data4 = (int *)autoMalloc(&exampleHeap, sizeof(int));
+  int* data1 = (int *)autoMalloc(&argList.exampleHeap, sizeof(int));
+  int* data2 = (int *)autoMalloc(&argList.exampleHeap, sizeof(int));
+  int* data3 = (int *)autoMalloc(&argList.exampleHeap, sizeof(int));
+  int* data4 = (int *)autoMalloc(&argList.exampleHeap, sizeof(int));
   *data1 = 5;
   *data2 = 10;
   *data3 = 15;
@@ -52,10 +58,10 @@ int exampleFunction(){
   
   printf("%d\n", *data3);
 
-  freeAll(&exampleHeap);
   return 0;
 }
 
 int main(int argc, char** argv){
-  exampleFunction();
+  struct Args argList;
+  int* res = (int *)run(argList, (void *)&exampleFunction);
 }
